@@ -194,3 +194,339 @@ select option{background:var(--surface2);color:var(--text)}
     <div class="icard">
       <label class="ilabel" for="v-broker">Broker?</label>
       <div class="irow">
+        <select id="v-broker" onchange="calc()">
+          <option value="Y">Sim</option>
+          <option value="N">Não</option>
+        </select>
+      </div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="v-extra">Custos Extras / Savings (R$)</label>
+      <div class="irow"><span class="ipfx">R$</span><input type="number" id="v-extra" value="0" step="1" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="div"><span>Resultados</span></div>
+
+  <div class="sec">Diferenciais</div>
+  <div class="rg rg-3">
+    <div class="rcard">
+      <div class="rlbl">Bica Diff</div>
+      <div class="rval" id="o-bicadiff">—</div>
+      <div class="runit">cts / libra</div>
+    </div>
+    <div class="rcard">
+      <div class="rlbl">14/16 Diff</div>
+      <div class="rval" id="o-d1416">—</div>
+      <div class="runit">cts / libra</div>
+      <div class="rsub" id="o-d1416net"></div>
+    </div>
+    <div class="rcard">
+      <div class="rlbl">17/18 Diff</div>
+      <div class="rval" id="o-d1718">—</div>
+      <div class="runit">cts / libra</div>
+      <div class="rsub" id="o-d1718net"></div>
+    </div>
+  </div>
+
+  <div class="sec">Preços de Referência</div>
+  <div class="rg rg-3">
+    <div class="rcard">
+      <div class="rlbl">Exportável FOB (USD/saca)</div>
+      <div class="rval c-gold" id="o-expfob">—</div>
+      <div class="runit">USD / saca 60kg</div>
+    </div>
+    <div class="rcard">
+      <div class="rlbl">Exportável FOB (cts/lb)</div>
+      <div class="rval" id="o-expcts">—</div>
+      <div class="runit">cts / libra</div>
+    </div>
+    <div class="rcard">
+      <div class="rlbl">Bica FOT (cts/lb)</div>
+      <div class="rval" id="o-bicafot">—</div>
+      <div class="runit">cts / libra</div>
+    </div>
+  </div>
+  <div class="rg rg-3">
+    <div class="rcard">
+      <div class="rlbl">Low Grade FOB Equiv.</div>
+      <div class="rval c-info" id="o-lgfob">—</div>
+      <div class="runit">USD / saca</div>
+    </div>
+    <div class="rcard">
+      <div class="rlbl">14/16 % (calculado)</div>
+      <div class="rval" id="o-p1416">—</div>
+      <div class="runit">% da bica</div>
+    </div>
+    <div class="rcard">
+      <div class="rlbl">NY Lots</div>
+      <div class="rval c-info" id="o-nylots">—</div>
+      <div class="runit">lotes hedge</div>
+    </div>
+  </div>
+
+  <div class="sec">Composição do Custo Exportável (USD/saca)</div>
+  <table class="stbl">
+    <tr><td style="color:var(--muted)">Preço de compra (USD/saca)</td><td id="t-compra">—</td></tr>
+    <tr><td style="color:var(--muted)">Frete de origem (USD/saca) <span id="t-cidade" style="color:var(--muted2)"></span></td><td id="t-frete">—</td></tr>
+    <tr><td style="color:var(--muted)">Corretagem (USD/saca)</td><td id="t-broker">—</td></tr>
+    <tr><td style="color:var(--muted)">Dry Mill (USD/saca)</td><td id="t-drymill">—</td></tr>
+    <tr><td style="color:var(--muted)">Total custo de compra</td><td id="t-totalc">—</td></tr>
+    <tr><td style="color:var(--muted)">Após low grade + milling loss</td><td id="t-postlg">—</td></tr>
+    <tr><td style="color:var(--muted)">Armazenagem + Seguro</td><td id="t-storage">—</td></tr>
+    <tr><td style="color:var(--muted)">Juros financeiros</td><td id="t-juros">—</td></tr>
+    <tr><td style="color:var(--muted)">Custo FOB (porto)</td><td id="t-fobcost">—</td></tr>
+    <tr><td style="color:var(--muted)">Crédito fiscal (PIS/Cofins)</td><td id="t-tax">—</td></tr>
+    <tr><td style="color:var(--muted)">Custos extras / savings</td><td id="t-extra">—</td></tr>
+    <tr class="rtotal"><td>Exportable FOB Cost (USD/saca)</td><td id="t-expfobcost">—</td></tr>
+  </table>
+
+</div>
+
+<!-- ===== PAINEL 2: Preço R$ → Diff ===== -->
+<div class="panel" id="panel-1">
+  <div class="ig ig-3">
+    <div class="icard">
+      <label class="ilabel" for="p1-preco">Preço da saca</label>
+      <div class="irow"><span class="ipfx">R$</span><input type="number" id="p1-preco" value="1530.00" step="0.01" min="0" oninput="calcDiff()"></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="p1-dolar">Dólar / PTAX</label>
+      <div class="irow"><span class="ipfx">R$</span><input type="number" id="p1-dolar" value="5.0692" step="0.0001" min="0.0001" oninput="calcDiff()"></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="p1-tela">Tela NY</label>
+      <div class="irow"><input type="number" id="p1-tela" value="290.25" step="0.01" min="0" oninput="calcDiff()"><span class="ipfx">cts/lb</span></div>
+    </div>
+  </div>
+  <div class="div"><span>Cálculo</span></div>
+  <div class="steps">
+    <div class="step"><span class="sn">01</span><span class="slbl">Preço em dólar / saca</span><span class="sfml" id="d-f1">—</span><span class="sval" id="d-r1">—</span></div>
+    <div class="step"><span class="sn">02</span><span class="slbl">Conversão para cts / libra</span><span class="sfml" id="d-f2">—</span><span class="sval" id="d-r2">—</span></div>
+    <div class="step"><span class="sn">03</span><span class="slbl">Diferencial bruto</span><span class="sfml" id="d-f3">—</span><span class="sval" id="d-r3">—</span></div>
+  </div>
+  <div class="main-result">
+    <div class="mr-lbl"><small>Resultado</small>Bica diff</div>
+    <div><div class="mr-val" id="d-diff">—</div><span class="mr-unit">cts / libra</span></div>
+  </div>
+</div>
+
+<!-- ===== PAINEL 3: Diff → Preço R$ ===== -->
+<div class="panel" id="panel-2">
+  <div class="ig ig-3">
+    <div class="icard">
+      <label class="ilabel" for="p2-diff">Diferencial</label>
+      <div class="irow"><input type="number" id="p2-diff" value="-62.09" step="0.01" oninput="calcPreco()"><span class="ipfx">cts/lb</span></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="p2-tela">Tela NY</label>
+      <div class="irow"><input type="number" id="p2-tela" value="290.25" step="0.01" min="0" oninput="calcPreco()"><span class="ipfx">cts/lb</span></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="p2-dolar">Dólar / PTAX</label>
+      <div class="irow"><span class="ipfx">R$</span><input type="number" id="p2-dolar" value="5.0692" step="0.0001" min="0.0001" oninput="calcPreco()"></div>
+    </div>
+  </div>
+  <div class="div"><span>Cálculo</span></div>
+  <div class="steps">
+    <div class="step"><span class="sn">01</span><span class="slbl">Preço em cts / libra</span><span class="sfml" id="p-f1">—</span><span class="sval" id="p-r1">—</span></div>
+    <div class="step"><span class="sn">02</span><span class="slbl">Conversão para USD / saca</span><span class="sfml" id="p-f2">—</span><span class="sval" id="p-r2">—</span></div>
+    <div class="step"><span class="sn">03</span><span class="slbl">Preço em reais / saca</span><span class="sfml" id="p-f3">—</span><span class="sval" id="p-r3">—</span></div>
+  </div>
+  <div class="main-result">
+    <div class="mr-lbl"><small>Resultado</small>Preço da saca</div>
+    <div><div class="mr-val c-gold" id="p-preco">—</div><span class="mr-unit">R$ / saca 60kg</span></div>
+  </div>
+</div>
+
+<p class="footer">Fator fixo: <span>1,3228</span> · USD/saca 60kg → cts/lb &nbsp;·&nbsp; Overhead: <span>2 cts/lb</span> (net replacement)</p>
+<p class="ts" id="ts"></p>
+
+</div>
+<script>
+const F=1.3228,OVERHEAD=2,PISCOFINS=0.00925,STORAGE_BRL_DAY=0.0617;
+
+const FRETES={
+  "POSTO":0,"ACEBURGO":8.6,"AGUANIL":6.76,"ALBERTINA":10,"ALFENAS":5.3,
+  "ALPINOPOLIS":10,"ALTEROSA":6.3,"ANDRADAS":8.3,"ARAGUARI":18,"ARAXÁ":16,
+  "ARCEBURGO":10.5,"AREADO":6.1,"BAMBUI":11.7,"BANDEIRA DO SUL":6.63,
+  "BIGUATINGA":8.9,"BOA ESPERANÇA":5.3,"BOM JESUS DA PENHA":10.85,
+  "BOM SUCESSO":7,"BORDA DA MATA":8.15,"BOTELHOS":7.3,"BRASOPOLIS":8.95,
+  "BREJATUBA":31.25,"BREJAUBINHA":30.5,"BUENO BRANDAO":9.37,"CABO VERDE":7.5,
+  "CAMACHO":9.6,"CAMBUQUIRA":5,"CAMPANHA":5,"CAMPESTRE":7,"CAMPO BELO":7,
+  "CAMPO DO MEIO":6.5,"CAMPOS GERAIS":5.5,"CANA VERDE":6.53,"CANDEIAS":7.5,
+  "CAPELINHA":18,"CAPETINGA":11.24,"CAPITOLIO":9.8,"CARMO DA CACHOEIRA":5,
+  "CARMO DA MATA":7.5,"CARMO DE MINAS":7.5,"CARMO DO PARANAIBA":15,
+  "CARMO DO RIO CLARO":7.5,"CARVALHOPOLIS":7,"CASSIA":10.5,"CAVACOS":7.23,
+  "CLARAVAL":10.5,"CONCEICAO DA APARECIDA":6.9,"CONCEICAO DO RIO VERDE":6.1,
+  "COQUEIRAL":6.5,"COROMANDEL":24,"CORREGO DO OURO":6.15,"CRISTAIS":7,
+  "DIVISA NOVA":8.8,"ELOI MENDES":4,"EUGENOPOLIS":23,"FERVEDOURO":24,
+  "FORMIGA":9,"FRANCA":14,"GUAPE":7.5,"GUARANÉSIA":8.71,"GUAXUPE":8,
+  "HELIODORA":6.5,"IBIRACI":11.35,"IBITURUNA DE MINAS":11.5,"IJACI":7.5,
+  "ILICINEA":6.8,"INCONFIDENTES":8.6,"IPUIUNA":7.9,"ITAMOGI":9,
+  "ITAÚ DE MINAS":9.71,"JACUÍ":11.5,"JACUTINGA":9.3,"JESUANIA":6.3,
+  "LAMBARI":6,"LAVRAS":6.7,"MACHADO":5.3,"MANHUAÇU":15,"MANHUMIRIM":24.5,
+  "MONSENHOR PAULO":5.2,"MONTE BELO":6.6,"MONTE CARMELO":16.5,
+  "MONTE SANTO DE MINAS":9.4,"MONTE SIÃO":9.4,"MOTE BELO":6.85,"MURIAE":22.5,
+  "MUTUM":31,"MUZAMBINHO":7.5,"NATERCIA":7.65,"NEPOMUCENO":5.79,
+  "NOVA RESENDE":8.89,"OLIVEIRA":8.65,"OURO FINO":8.89,"PALMEIRAL":8.75,
+  "PARAGUAÇU":5.09,"PASSOS":9.98,"PATOS DE MINAS":22.5,"PATROCINIO":20,
+  "PEDRALVA":8.77,"PERDOES":6.9,"PIUMHI":10.38,"POÇO FUNDO":6.1,
+  "POÇOS DE CALDAS":8.51,"RIO PARANAIBA":21,"SANTA RITA DO SAPUCAI":7.83,
+  "SANTANA DA VARGEM":5.22,"SANTO ANTONIO DO AMPARO":7.45,
+  "SÃO DOMINGO DAS DORES":31,"SÃO FRANCISCO DE PAULA":8.22,
+  "SÃO GONÇALO SAPUCAI":6.09,"SÃO GOTARGO":20.65,"SÃO JOAO DA BOA VISTA":9.63,
+  "SÃO JOÃO DA MATA":6.8,"SÃO ROQUE DE MINAS":12.7,"SÃO SEBASTIAO DA GRAMA":9.08,
+  "SÃO SEBASTIÃO DO PARAISO":10.12,"SÃO THOMÉ DAS LETRAS":7.28,
+  "SÃO TOMAS DE AQUINO":11.19,"SERRA DOS LIMA":11.36,"SERRANIA":6.51,
+  "SOCORRO - SP":10,"TRES CORAÇÕES":4.28,"TRES PONTAS":4.28,
+  "TURVOLANDIA":6.53,"VARGINHA":3.55
+};
+
+(function(){
+  const sel=document.getElementById('v-cidade');
+  Object.keys(FRETES).sort().forEach(c=>{
+    const op=document.createElement('option');
+    op.value=c;op.textContent=c;
+    if(c==='MACHADO')op.selected=true;
+    sel.appendChild(op);
+  });
+})();
+
+function fmt(n,d){return n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function sv(id,html){const e=document.getElementById(id);if(e)e.innerHTML=html}
+function cc(v){return v<0?'c-neg':'c-pos'}
+function ts(){document.getElementById('ts').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+
+function calc(){
+  const brl   =+document.getElementById('v-preco').value  ||0;
+  const usd   =+document.getElementById('v-dolar').value  ||1;
+  const kc    =+document.getElementById('v-kc').value     ||0;
+  const p1718 =+document.getElementById('v-p1718').value  ||0;
+  const prem  =+document.getElementById('v-premio').value ||0;
+  const off   =+document.getElementById('v-off').value    ||0;
+  const mill  =+document.getElementById('v-mill').value   ||0;
+  const lgBrl =+document.getElementById('v-lg').value     ||0;
+  const sacas =+document.getElementById('v-sacas').value  ||500;
+  const drym  =+document.getElementById('v-drymill').value||0;
+  const fob   =+document.getElementById('v-fob').value    ||0;
+  const juros =+document.getElementById('v-juros').value  ||0;
+  const dias  =+document.getElementById('v-dias').value   ||30;
+  const broker=document.getElementById('v-broker').value==='Y';
+  const extra =+document.getElementById('v-extra').value  ||0;
+
+  const cidade  =document.getElementById('v-cidade').value;
+  const freteRs =FRETES[cidade]||0;
+  const freteUsd=(freteRs/usd)*1.06;
+
+  document.getElementById('v-frete-badge').textContent='R$ '+fmt(freteRs,2)+' / saca';
+  document.getElementById('t-cidade').textContent='— '+cidade;
+
+  const offEff =off-mill;
+  const p1416  =100-p1718-off-mill;
+
+  const usdBica  =brl/usd;
+  const brokerUsd=broker?usdBica*0.005:0;
+  const totalC   =usdBica+freteUsd+brokerUsd+drym;
+
+  const lgUsd  =lgBrl/usd;
+  const lgBrok =lgUsd*0.005;
+  const lgFot  =lgUsd-lgBrok;
+  const lgFobEq=lgFot+fob;
+
+  const millBags=(mill/100)*sacas;
+  const postLg  =(totalC-lgFobEq*(offEff/100))/((100-offEff)/100)
+                +(millBags*brl)/(F*usd*sacas);
+
+  const storUsd =(STORAGE_BRL_DAY/usd)*dias;
+  const jurosUsd=kc*F*(dias/360)*(juros/100);
+  const taxCr   =-(PISCOFINS*0.7)*(postLg+storUsd+jurosUsd+fob);
+  const extraUsd=extra/usd;
+  const expFobC =postLg+storUsd+jurosUsd+fob+taxCr+extraUsd;
+
+  const exp1718 =expFobC+(prem/2*F);
+  const exp1416 =expFobC-(prem/2*F);
+  const diff1718=    (exp1718/F)-kc;
+  const diff1416=    (exp1416/F)-kc;
+  const diff1718net= diff1718+OVERHEAD;
+  const diff1416net= diff1416+OVERHEAD;
+
+  const bicaFot =usdBica/F;
+  const bicaDiff=bicaFot-kc;
+  const expFobCts=expFobC/F;
+  const nyLots  =sacas*((100-off)/100)/283.5;
+
+  function setDiff(id,v,netId,netV){
+    const e=document.getElementById(id);
+    if(!e)return;
+    e.textContent=fmt(v,2);e.className='rval '+cc(v);
+    if(netId){const ne=document.getElementById(netId);if(ne)ne.textContent='net: '+fmt(netV,2)+' cts/lb';}
+  }
+  setDiff('o-bicadiff',bicaDiff);
+  setDiff('o-d1416',diff1416,'o-d1416net',diff1416net);
+  setDiff('o-d1718',diff1718,'o-d1718net',diff1718net);
+
+  sv('o-expfob','USD '+fmt(expFobC,2));
+  const ec=document.getElementById('o-expcts');
+  if(ec){ec.textContent=fmt(expFobCts,2);ec.className='rval '+cc(expFobCts-kc);}
+  const bf=document.getElementById('o-bicafot');
+  if(bf){bf.textContent=fmt(bicaFot,2);bf.className='rval '+cc(bicaDiff);}
+  sv('o-lgfob','USD '+fmt(lgFobEq,2));
+  sv('o-p1416',fmt(p1416,2)+'%');
+  sv('o-nylots',fmt(nyLots,2));
+
+  sv('t-compra',  'USD '+fmt(usdBica,4));
+  sv('t-frete',   'USD '+fmt(freteUsd,4));
+  sv('t-broker',  'USD '+fmt(brokerUsd,4));
+  sv('t-drymill', 'USD '+fmt(drym,2));
+  sv('t-totalc',  'USD '+fmt(totalC,4));
+  sv('t-postlg',  'USD '+fmt(postLg,4));
+  sv('t-storage', 'USD '+fmt(storUsd,4));
+  sv('t-juros',   'USD '+fmt(jurosUsd,4));
+  sv('t-fobcost', 'USD '+fmt(fob,2));
+  sv('t-tax',     'USD '+fmt(taxCr,4));
+  sv('t-extra',   'USD '+fmt(extraUsd,4));
+  sv('t-expfobcost','USD '+fmt(expFobC,4));
+  ts();
+}
+
+function calcDiff(){
+  const preco=+document.getElementById('p1-preco').value||0;
+  const dolar=+document.getElementById('p1-dolar').value||1;
+  const tela =+document.getElementById('p1-tela').value||0;
+  const r1=preco/dolar,r2=r1/F,r3=r2-tela;
+  sv('d-f1',fmt(preco,2)+' ÷ '+fmt(dolar,4));
+  sv('d-r1','USD '+fmt(r1,2)+'<span class="su">/saca</span>');
+  sv('d-f2',fmt(r1,2)+' ÷ 1,3228');
+  sv('d-r2',fmt(r2,2)+'<span class="su">cts/lb</span>');
+  sv('d-f3',fmt(r2,2)+' − '+fmt(tela,2));
+  sv('d-r3',fmt(r3,2)+'<span class="su">cts/lb</span>');
+  const e=document.getElementById('d-diff');
+  e.textContent=fmt(r3,2);e.className='mr-val '+cc(r3);
+  ts();
+}
+
+function calcPreco(){
+  const diff =+document.getElementById('p2-diff').value||0;
+  const tela =+document.getElementById('p2-tela').value||0;
+  const dolar=+document.getElementById('p2-dolar').value||1;
+  const r1=diff+tela,r2=r1*F,r3=r2*dolar;
+  sv('p-f1',fmt(diff,2)+' + '+fmt(tela,2));
+  sv('p-r1',fmt(r1,2)+'<span class="su">cts/lb</span>');
+  sv('p-f2',fmt(r1,2)+' × 1,3228');
+  sv('p-r2','USD '+fmt(r2,2)+'<span class="su">/saca</span>');
+  sv('p-f3',fmt(r2,2)+' × '+fmt(dolar,4));
+  sv('p-r3','R$ '+fmt(r3,2)+'<span class="su">/saca</span>');
+  document.getElementById('p-preco').textContent='R$ '+fmt(r3,2);
+  ts();
+}
+
+function switchTab(i){
+  document.querySelectorAll('.tab-btn').forEach((b,j)=>b.classList.toggle('active',i===j));
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',i===j));
+}
+
+calc();calcDiff();calcPreco();
+</script>
+</body>
+</html>
