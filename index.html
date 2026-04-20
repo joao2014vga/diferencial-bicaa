@@ -3,578 +3,194 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diferencial da Bica — Calculadora</title>
+<title>Brascof · Simulador de Negociação</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0e0c;--surface:#181714;--surface2:#211f1b;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --gold:#c8a96e;--gold-dim:#8a7148;--gold-glow:rgba(200,169,110,0.15);
+  --text:#ede8df;--muted:#7a7368;--muted2:#534f47;
+  --neg:#c0614a;--pos:#6a9e6a;--info:#5b8db8;
+  --mono:'DM Mono',monospace;--serif:'Fraunces',serif;
+}
+html{font-size:15px}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;padding:2.5rem 1.25rem 5rem;position:relative;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E")}
+body::after{content:'';position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 0%,var(--gold) 40%,var(--gold) 60%,transparent 100%);opacity:.55}
+.page{max-width:900px;margin:0 auto;position:relative;z-index:1}
 
-  :root {
-    --bg: #0f0e0c;
-    --surface: #181714;
-    --surface2: #211f1b;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.13);
-    --gold: #c8a96e;
-    --gold-dim: #8a7148;
-    --gold-glow: rgba(200,169,110,0.15);
-    --text: #ede8df;
-    --muted: #7a7368;
-    --muted2: #534f47;
-    --neg: #c0614a;
-    --pos: #6a9e6a;
-    --mono: 'DM Mono', monospace;
-    --serif: 'Fraunces', serif;
-  }
+header{text-align:center;margin-bottom:2.5rem;animation:fadeUp .6s ease both}
+.eyebrow{font-size:10px;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;margin-bottom:.9rem;display:flex;align-items:center;justify-content:center;gap:12px}
+.eyebrow::before,.eyebrow::after{content:'';display:block;height:1px;width:36px;background:var(--gold-dim)}
+h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.1;margin-bottom:.3rem}
+h1 em{font-style:italic;color:var(--gold)}
+.subtitle{font-size:11px;color:var(--muted);letter-spacing:.06em}
 
-  html { font-size: 16px; }
+.tabs{display:flex;gap:3px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:2rem;animation:fadeUp .6s .05s ease both}
+.tab-btn{flex:1;background:transparent;border:none;border-radius:8px;padding:.6rem .5rem;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted);cursor:pointer;transition:background .2s,color .2s;text-transform:uppercase;line-height:1.4}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{background:var(--surface2);color:var(--gold);border:1px solid var(--border2)}
+.panel{display:none}.panel.active{display:block;animation:fadeUp .35s ease both}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--mono);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 3rem 1.5rem 5rem;
-    position: relative;
-    overflow-x: hidden;
-  }
+.sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-dim);margin:0 0 .75rem;display:flex;align-items:center;gap:10px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-  }
+.ig{display:grid;gap:10px;margin-bottom:1.25rem}
+.ig-2{grid-template-columns:repeat(2,1fr)}
+.ig-3{grid-template-columns:repeat(3,1fr)}
+.ig-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:620px){.ig-3,.ig-4{grid-template-columns:repeat(2,1fr)}.ig-2{grid-template-columns:1fr}}
 
-  body::after {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent 0%, var(--gold) 40%, var(--gold) 60%, transparent 100%);
-    opacity: 0.6;
-  }
+.icard{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.9rem .85rem;transition:border-color .2s,box-shadow .2s}
+.icard:focus-within{border-color:var(--gold-dim);box-shadow:0 0 0 3px var(--gold-glow)}
+.ilabel{font-size:10px;letter-spacing:.13em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;display:block}
+.irow{display:flex;align-items:baseline;gap:4px}
+.ipfx{font-size:10px;color:var(--muted);flex-shrink:0}
+.frete-badge{font-size:11px;color:var(--gold);margin-top:4px;display:block;letter-spacing:.05em}
 
-  .wrap {
-    width: 100%;
-    max-width: 660px;
-    position: relative;
-    z-index: 1;
-  }
+input[type=number]{background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:16px;font-weight:500;width:100%;-moz-appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+select{background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:14px;font-weight:500;width:100%;cursor:pointer}
+select option{background:var(--surface2);color:var(--text)}
 
-  header {
-    text-align: center;
-    margin-bottom: 2.5rem;
-    animation: fadeUp 0.6s ease both;
-  }
+.div{display:flex;align-items:center;gap:10px;margin:1rem 0}
+.div::before,.div::after{content:'';flex:1;height:1px;background:var(--border)}
+.div span{font-size:10px;letter-spacing:.18em;color:var(--muted2);text-transform:uppercase}
 
-  .eyebrow {
-    font-size: 10px;
-    letter-spacing: 0.25em;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-  }
-  .eyebrow::before, .eyebrow::after {
-    content: '';
-    display: block;
-    height: 1px;
-    width: 40px;
-    background: var(--gold-dim);
-  }
+.steps{display:flex;flex-direction:column;gap:2px;margin-bottom:1.25rem}
+.step{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:.75rem 1rem;display:grid;grid-template-columns:1.6rem 1fr auto auto;align-items:center;gap:10px}
+@media(max-width:550px){.step{grid-template-columns:1.6rem 1fr auto}.sfml{display:none}}
+.sn{font-size:10px;color:var(--gold-dim);letter-spacing:.1em}
+.slbl{font-size:11px;color:var(--muted);letter-spacing:.03em}
+.sfml{font-size:10px;color:var(--muted2);text-align:right}
+.sval{font-size:13px;font-weight:500;color:var(--text);text-align:right;min-width:115px}
+.su{font-size:9px;color:var(--muted);margin-left:2px}
 
-  h1 {
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(2rem, 5vw, 2.8rem);
-    color: var(--text);
-    letter-spacing: -0.01em;
-    line-height: 1.1;
-    margin-bottom: 0.4rem;
-  }
-  h1 em { font-style: italic; color: var(--gold); }
+.rg{display:grid;gap:10px;margin-bottom:1rem}
+.rg-3{grid-template-columns:repeat(3,1fr)}
+.rg-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:600px){.rg-3{grid-template-columns:repeat(2,1fr)}}
 
-  .subtitle {
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.05em;
-  }
+.rcard{background:var(--surface2);border:1px solid var(--border2);border-radius:11px;padding:1.1rem 1rem;position:relative;overflow:hidden}
+.rcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);opacity:.45}
+.rlbl{font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:.4rem}
+.rval{font-family:var(--serif);font-size:1.65rem;font-weight:600;letter-spacing:-.02em;line-height:1}
+.runit{font-size:10px;color:var(--muted);margin-top:.25rem;letter-spacing:.08em}
+.rsub{font-size:11px;color:var(--muted);margin-top:.3rem}
 
-  .tabs {
-    display: flex;
-    gap: 4px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 4px;
-    margin-bottom: 2rem;
-    animation: fadeUp 0.6s 0.05s ease both;
-  }
+.main-result{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:1.4rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;margin-bottom:1.25rem}
+.main-result::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);opacity:.5}
+.mr-lbl{font-family:var(--serif);font-weight:300;font-size:1rem;color:var(--text)}
+.mr-lbl small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:2px;font-weight:400}
+.mr-val{font-family:var(--serif);font-size:clamp(1.8rem,4vw,2.4rem);font-weight:600;letter-spacing:-.02em;text-align:right;transition:color .3s}
+.mr-unit{font-size:11px;color:var(--muted);display:block;text-align:right;margin-top:2px;letter-spacing:.08em;font-family:var(--mono)}
 
-  .tab-btn {
-    flex: 1;
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    padding: 0.65rem 1rem;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    text-transform: uppercase;
-    line-height: 1.4;
-  }
+.c-neg{color:var(--neg)}.c-pos{color:var(--pos)}.c-gold{color:var(--gold)}.c-info{color:var(--info)}
 
-  .tab-btn:hover { color: var(--text); }
+.stbl{width:100%;border-collapse:collapse;margin-bottom:1.25rem}
+.stbl td{padding:.5rem .85rem;border-bottom:1px solid var(--border);font-size:12px}
+.stbl td:last-child{text-align:right;font-weight:500}
+.stbl tr:last-child td{border-bottom:none}
+.stbl .rtotal td{border-top:1px solid var(--border2);font-weight:500;color:var(--gold);padding-top:.75rem}
 
-  .tab-btn.active {
-    background: var(--surface2);
-    color: var(--gold);
-    border: 1px solid var(--border2);
-  }
+.footer{margin-top:2rem;text-align:center;font-size:11px;color:var(--muted2);letter-spacing:.06em}
+.footer span{color:var(--gold-dim)}
+.ts{font-size:10px;color:var(--muted2);text-align:center;margin-top:.3rem;letter-spacing:.1em}
 
-  .panel { display: none; }
-  .panel.active { display: block; }
-
-  .inputs-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 1.5rem;
-    animation: fadeUp 0.4s ease both;
-  }
-
-  @media (max-width: 500px) {
-    .inputs-grid { grid-template-columns: 1fr; }
-    .tab-btn { font-size: 10px; padding: 0.55rem 0.5rem; }
-  }
-
-  .input-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.1rem 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .input-card:focus-within {
-    border-color: var(--gold-dim);
-    box-shadow: 0 0 0 3px var(--gold-glow);
-  }
-
-  .input-label {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    display: block;
-  }
-
-  .input-row {
-    display: flex;
-    align-items: baseline;
-    gap: 4px;
-  }
-
-  .input-prefix {
-    font-size: 11px;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-
-  input[type="number"] {
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 18px;
-    font-weight: 500;
-    width: 100%;
-    -moz-appearance: textfield;
-  }
-  input[type="number"]::-webkit-outer-spin-button,
-  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 1.2rem 0;
-  }
-  .divider::before, .divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-  .divider span {
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: var(--muted2);
-    text-transform: uppercase;
-  }
-
-  .steps {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin-bottom: 1.5rem;
-  }
-
-  .step {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.85rem 1.1rem;
-    display: grid;
-    grid-template-columns: 1.4rem 1fr auto auto;
-    align-items: center;
-    gap: 12px;
-  }
-
-  @media (max-width: 500px) {
-    .step { grid-template-columns: 1.4rem 1fr auto; }
-    .step-formula { display: none; }
-  }
-
-  .step-num {
-    font-size: 10px;
-    color: var(--gold-dim);
-    letter-spacing: 0.1em;
-  }
-
-  .step-label {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.04em;
-  }
-
-  .step-formula {
-    font-size: 11px;
-    color: var(--muted2);
-    font-family: var(--mono);
-    text-align: right;
-  }
-
-  .step-result {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-    text-align: right;
-    min-width: 120px;
-  }
-
-  .step-unit {
-    font-size: 10px;
-    color: var(--muted);
-    margin-left: 3px;
-  }
-
-  .result-card {
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 12px;
-    padding: 1.6rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .result-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
-    opacity: 0.5;
-  }
-
-  .result-label {
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: 1.1rem;
-    color: var(--text);
-    letter-spacing: -0.01em;
-  }
-  .result-label small {
-    display: block;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 2px;
-    font-weight: 400;
-  }
-
-  .result-value {
-    font-family: var(--serif);
-    font-size: clamp(2rem, 5vw, 2.8rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    transition: color 0.3s;
-    text-align: right;
-  }
-  .result-unit-label {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-    display: block;
-    text-align: right;
-    margin-top: 2px;
-    letter-spacing: 0.08em;
-  }
-
-  .neg-val { color: var(--neg); }
-  .pos-val { color: var(--pos); }
-  .gold-val { color: var(--gold); }
-
-  .footer-note {
-    margin-top: 2rem;
-    text-align: center;
-    font-size: 11px;
-    color: var(--muted2);
-    letter-spacing: 0.06em;
-  }
-  .footer-note span { color: var(--gold-dim); }
-
-  .timestamp {
-    font-size: 10px;
-    color: var(--muted2);
-    letter-spacing: 0.1em;
-    text-align: center;
-    margin-top: 0.4rem;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="page">
 
-  <header>
-    <div class="eyebrow">ICE Futures U.S. · Contrato C</div>
-    <h1>Diferencial da <em>Bica</em></h1>
-    <p class="subtitle">Bica corrida · Calculadora de negociação</p>
-  </header>
+<header>
+  <div class="eyebrow">ICE Futures U.S. · Contrato C</div>
+  <h1>Brascof · Simulador de <em>Negociação</em></h1>
+  <p class="subtitle">Bica corrida — precificação completa para exportação</p>
+</header>
 
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab(0)">
-      Preço R$ → Diferencial
-    </button>
-    <button class="tab-btn" onclick="switchTab(1)">
-      Diferencial → Preço R$
-    </button>
-  </div>
-
-  <!-- PAINEL 1 -->
-  <div class="panel active" id="panel-0">
-    <div class="inputs-grid">
-      <div class="input-card">
-        <label class="input-label" for="p1-preco">Preço da saca</label>
-        <div class="input-row">
-          <span class="input-prefix">R$</span>
-          <input type="number" id="p1-preco" value="1530.00" step="0.01" min="0" oninput="calcDiff()">
-        </div>
-      </div>
-      <div class="input-card">
-        <label class="input-label" for="p1-dolar">Dólar / PTAX</label>
-        <div class="input-row">
-          <span class="input-prefix">R$</span>
-          <input type="number" id="p1-dolar" value="5.0692" step="0.0001" min="0.0001" oninput="calcDiff()">
-        </div>
-      </div>
-      <div class="input-card">
-        <label class="input-label" for="p1-tela">Tela NY</label>
-        <div class="input-row">
-          <input type="number" id="p1-tela" value="290.25" step="0.01" min="0" oninput="calcDiff()">
-          <span class="input-prefix">cts/lb</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="divider"><span>Cálculo</span></div>
-
-    <div class="steps">
-      <div class="step">
-        <span class="step-num">01</span>
-        <span class="step-label">Preço em dólar / saca</span>
-        <span class="step-formula" id="d-f1">—</span>
-        <span class="step-result" id="d-r1">—</span>
-      </div>
-      <div class="step">
-        <span class="step-num">02</span>
-        <span class="step-label">Conversão para cts / libra</span>
-        <span class="step-formula" id="d-f2">—</span>
-        <span class="step-result" id="d-r2">—</span>
-      </div>
-      <div class="step">
-        <span class="step-num">03</span>
-        <span class="step-label">Diferencial bruto</span>
-        <span class="step-formula" id="d-f3">—</span>
-        <span class="step-result" id="d-r3">—</span>
-      </div>
-    </div>
-
-    <div class="result-card">
-      <div class="result-label">
-        <small>Resultado</small>
-        Bica diff
-      </div>
-      <div>
-        <div class="result-value" id="d-diff">—</div>
-        <span class="result-unit-label">cts / libra</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAINEL 2 -->
-  <div class="panel" id="panel-1">
-    <div class="inputs-grid">
-      <div class="input-card">
-        <label class="input-label" for="p2-diff">Diferencial</label>
-        <div class="input-row">
-          <input type="number" id="p2-diff" value="-62.09" step="0.01" oninput="calcPreco()">
-          <span class="input-prefix">cts/lb</span>
-        </div>
-      </div>
-      <div class="input-card">
-        <label class="input-label" for="p2-tela">Tela NY</label>
-        <div class="input-row">
-          <input type="number" id="p2-tela" value="290.25" step="0.01" min="0" oninput="calcPreco()">
-          <span class="input-prefix">cts/lb</span>
-        </div>
-      </div>
-      <div class="input-card">
-        <label class="input-label" for="p2-dolar">Dólar / PTAX</label>
-        <div class="input-row">
-          <span class="input-prefix">R$</span>
-          <input type="number" id="p2-dolar" value="5.0692" step="0.0001" min="0.0001" oninput="calcPreco()">
-        </div>
-      </div>
-    </div>
-
-    <div class="divider"><span>Cálculo</span></div>
-
-    <div class="steps">
-      <div class="step">
-        <span class="step-num">01</span>
-        <span class="step-label">Preço em cts / libra</span>
-        <span class="step-formula" id="p-f1">—</span>
-        <span class="step-result" id="p-r1">—</span>
-      </div>
-      <div class="step">
-        <span class="step-num">02</span>
-        <span class="step-label">Conversão para US$ / saca</span>
-        <span class="step-formula" id="p-f2">—</span>
-        <span class="step-result" id="p-r2">—</span>
-      </div>
-      <div class="step">
-        <span class="step-num">03</span>
-        <span class="step-label">Preço em reais / saca</span>
-        <span class="step-formula" id="p-f3">—</span>
-        <span class="step-result" id="p-r3">—</span>
-      </div>
-    </div>
-
-    <div class="result-card">
-      <div class="result-label">
-        <small>Resultado</small>
-        Preço da saca
-      </div>
-      <div>
-        <div class="result-value gold-val" id="p-preco">—</div>
-        <span class="result-unit-label">R$ / saca 60kg</span>
-      </div>
-    </div>
-  </div>
-
-  <p class="footer-note">
-    Fator fixo de conversão: <span>1,3228</span> · US$/saca 60kg → cts/lb
-  </p>
-  <p class="timestamp" id="ts"></p>
-
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab(0)">Precificação Completa</button>
+  <button class="tab-btn" onclick="switchTab(1)">Preço R$ → Diff</button>
+  <button class="tab-btn" onclick="switchTab(2)">Diff → Preço R$</button>
 </div>
 
-<script>
-  const FATOR = 1.3228;
+<!-- ===== PAINEL 1: PRECIFICAÇÃO COMPLETA ===== -->
+<div class="panel active" id="panel-0">
 
-  function fmt(n, dec) {
-    return n.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
-  }
+  <div class="sec">Mercado</div>
+  <div class="ig ig-3">
+    <div class="icard">
+      <label class="ilabel" for="v-preco">Preço Bica (R$/saca)</label>
+      <div class="irow"><span class="ipfx">R$</span><input type="number" id="v-preco" value="1930" step="1" min="0" oninput="calc()"></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="v-dolar">Dólar / PTAX</label>
+      <div class="irow"><span class="ipfx">R$</span><input type="number" id="v-dolar" value="4.992" step="0.0001" min="0.0001" oninput="calc()"></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="v-kc">Tela NY (KC)</label>
+      <div class="irow"><input type="number" id="v-kc" value="303.8" step="0.05" min="0" oninput="calc()"><span class="ipfx">cts/lb</span></div>
+    </div>
+  </div>
 
-  function ts() {
-    const now = new Date();
-    document.getElementById('ts').textContent =
-      'Atualizado às ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  }
+  <div class="sec">Qualidade & Beneficiamento</div>
+  <div class="ig ig-4">
+    <div class="icard">
+      <label class="ilabel" for="v-p1718">17/18 (%)</label>
+      <div class="irow"><input type="number" id="v-p1718" value="20" step="1" min="0" max="100" oninput="calc()"><span class="ipfx">%</span></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="v-premio">Prêmio 17/18 (cts/lb)</label>
+      <div class="irow"><input type="number" id="v-premio" value="12" step="0.5" oninput="calc()"><span class="ipfx">cts/lb</span></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="v-off">Offgrades / Catação (%)</label>
+      <div class="irow"><input type="number" id="v-off" value="20" step="0.5" min="0" max="50" oninput="calc()"><span class="ipfx">%</span></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="v-mill">Milling Loss (%)</label>
+      <div class="irow"><input type="number" id="v-mill" value="0.25" step="0.05" min="0" oninput="calc()"><span class="ipfx">%</span></div>
+    </div>
+  </div>
+  <div class="ig ig-4">
+    <div class="icard">
+      <label class="ilabel" for="v-lg">Low Grade (R$/saca)</label>
+      <div class="irow"><span class="ipfx">R$</span><input type="number" id="v-lg" value="1387.22" step="1" min="0" oninput="calc()"></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="v-sacas">Quantidade (sacas)</label>
+      <div class="irow"><input type="number" id="v-sacas" value="500" step="1" min="1" oninput="calc()"></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="v-drymill">Dry Mill (USD/saca)</label>
+      <div class="irow"><span class="ipfx">USD</span><input type="number" id="v-drymill" value="3" step="0.5" min="0" oninput="calc()"></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="v-fob">FOB Costs (USD/saca)</label>
+      <div class="irow"><span class="ipfx">USD</span><input type="number" id="v-fob" value="9.22" step="0.1" min="0" oninput="calc()"></div>
+    </div>
+  </div>
 
-  function calcDiff() {
-    const preco = parseFloat(document.getElementById('p1-preco').value) || 0;
-    const dolar = parseFloat(document.getElementById('p1-dolar').value) || 1;
-    const tela  = parseFloat(document.getElementById('p1-tela').value)  || 0;
-
-    const r1 = preco / dolar;
-    const r2 = r1 / FATOR;
-    const r3 = r2 - tela;
-
-    document.getElementById('d-f1').textContent = `${fmt(preco,2)} ÷ ${fmt(dolar,4)}`;
-    document.getElementById('d-r1').innerHTML   = `US$ ${fmt(r1,2)} <span class="step-unit">/ saca</span>`;
-    document.getElementById('d-f2').textContent = `${fmt(r1,2)} ÷ 1,3228`;
-    document.getElementById('d-r2').innerHTML   = `${fmt(r2,2)} <span class="step-unit">cts/lb</span>`;
-    document.getElementById('d-f3').textContent = `${fmt(r2,2)} − ${fmt(tela,2)}`;
-    document.getElementById('d-r3').innerHTML   = `${fmt(r3,2)} <span class="step-unit">cts/lb</span>`;
-
-    const el = document.getElementById('d-diff');
-    el.textContent = fmt(r3, 2);
-    el.className = 'result-value ' + (r3 < 0 ? 'neg-val' : 'pos-val');
-    ts();
-  }
-
-  function calcPreco() {
-    const diff  = parseFloat(document.getElementById('p2-diff').value)  || 0;
-    const tela  = parseFloat(document.getElementById('p2-tela').value)  || 0;
-    const dolar = parseFloat(document.getElementById('p2-dolar').value) || 1;
-
-    const r1 = diff + tela;
-    const r2 = r1 * FATOR;
-    const r3 = r2 * dolar;
-
-    document.getElementById('p-f1').textContent = `${fmt(diff,2)} + ${fmt(tela,2)}`;
-    document.getElementById('p-r1').innerHTML   = `${fmt(r1,2)} <span class="step-unit">cts/lb</span>`;
-    document.getElementById('p-f2').textContent = `${fmt(r1,2)} × 1,3228`;
-    document.getElementById('p-r2').innerHTML   = `US$ ${fmt(r2,2)} <span class="step-unit">/ saca</span>`;
-    document.getElementById('p-f3').textContent = `${fmt(r2,2)} × ${fmt(dolar,4)}`;
-    document.getElementById('p-r3').innerHTML   = `R$ ${fmt(r3,2)} <span class="step-unit">/ saca</span>`;
-
-    document.getElementById('p-preco').textContent = `R$ ${fmt(r3,2)}`;
-    ts();
-  }
-
-  function switchTab(idx) {
-    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
-    document.querySelectorAll('.panel').forEach((p, i) => p.classList.toggle('active', i === idx));
-  }
-
-  calcDiff();
-  calcPreco();
-  ts();
-</script>
-</body>
-</html>
+  <div class="sec">Logística & Financeiro</div>
+  <div class="ig ig-4">
+    <div class="icard" style="grid-column:span 2">
+      <label class="ilabel" for="v-cidade">Frete — Cidade de Origem</label>
+      <select id="v-cidade" onchange="calc()"></select>
+      <span class="frete-badge" id="v-frete-badge">R$ — / saca</span>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="v-juros">Juros (% a.a.)</label>
+      <div class="irow"><input type="number" id="v-juros" value="11" step="0.5" min="0" oninput="calc()"><span class="ipfx">%</span></div>
+    </div>
+    <div class="icard">
+      <label class="ilabel" for="v-dias">Ciclo Estoque (dias)</label>
+      <div class="irow"><input type="number" id="v-dias" value="30" step="1" min="1" oninput="calc()"><span class="ipfx">dias</span></div>
+    </div>
+  </div>
+  <div class="ig ig-2">
+    <div class="icard">
+      <label class="ilabel" for="v-broker">Broker?</label>
+      <div class="irow">
