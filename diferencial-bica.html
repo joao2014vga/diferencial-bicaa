@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diferencial da Bica — Calculadora</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0e0c;
+    --surface: #181714;
+    --surface2: #211f1b;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --gold: #c8a96e;
+    --gold-dim: #8a7148;
+    --gold-glow: rgba(200,169,110,0.15);
+    --text: #ede8df;
+    --muted: #7a7368;
+    --muted2: #534f47;
+    --neg: #c0614a;
+    --pos: #6a9e6a;
+    --neg-bg: rgba(192,97,74,0.1);
+    --pos-bg: rgba(106,158,106,0.1);
+    --mono: 'DM Mono', monospace;
+    --serif: 'Fraunces', serif;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1.5rem 5rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Background grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Decorative top line */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--gold) 40%, var(--gold) 60%, transparent 100%);
+    opacity: 0.6;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 640px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .eyebrow::before, .eyebrow::after {
+    content: '';
+    display: block;
+    height: 1px;
+    width: 40px;
+    background: var(--gold-dim);
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* Input section */
+  .inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  @media (max-width: 500px) {
+    .inputs-grid { grid-template-columns: 1fr; }
+  }
+
+  .input-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1rem;
+    transition: border-color 0.2s;
+  }
+  .input-card:focus-within {
+    border-color: var(--gold-dim);
+    box-shadow: 0 0 0 3px var(--gold-glow);
+  }
+
+  .input-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .input-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .input-prefix {
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  input[type="number"] {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 500;
+    width: 100%;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 1.5rem 0;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .divider span {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted2);
+    text-transform: uppercase;
+  }
+
+  /* Steps */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.25s ease both;
+  }
+
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    display: grid;
+    grid-template-columns: 1.4rem 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.2s;
+  }
+
+  .step-num {
+    font-size: 10px;
+    color: var(--gold-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .step-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  .step-formula {
+    font-size: 11px;
+    color: var(--muted2);
+    font-family: var(--mono);
+    text-align: right;
+  }
+
+  .step-result {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    text-align: right;
+    min-width: 110px;
+  }
+
+  .step-unit {
+    font-size: 10px;
+    color: var(--muted);
+    margin-left: 3px;
+  }
+
+  /* Result card */
+  .result-card {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 1.6rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: fadeUp 0.6s 0.3s ease both;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .result-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    opacity: 0.5;
+  }
+
+  .result-label {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: 1.1rem;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .result-label small {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    font-weight: 400;
+  }
+
+  .result-value {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    transition: color 0.3s;
+    text-align: right;
+  }
+  .result-unit {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    display: block;
+    text-align: right;
+    margin-top: 2px;
+    letter-spacing: 0.08em;
+  }
+
+  .neg-val { color: var(--neg); }
+  .pos-val { color: var(--pos); }
+
+  /* Footer info */
+  .footer-note {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted2);
+    letter-spacing: 0.06em;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .footer-note span {
+    color: var(--gold-dim);
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Timestamp */
+  .timestamp {
+    font-size: 10px;
+    color: var(--muted2);
+    letter-spacing: 0.12em;
+    text-align: center;
+    margin-top: 0.4rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">ICE Futures U.S. · Contrato C</div>
+    <h1>Diferencial da <em>Bica</em></h1>
+    <p class="subtitle">Bica corrida → cts/libra vs tela NY</p>
+  </header>
+
+  <div class="inputs-grid">
+    <div class="input-card">
+      <label class="input-label" for="preco">Preço da saca</label>
+      <div class="input-row">
+        <span class="input-prefix">R$</span>
+        <input type="number" id="preco" value="1530.00" step="0.01" min="0">
+      </div>
+    </div>
+    <div class="input-card">
+      <label class="input-label" for="dolar">Dólar / PTAX</label>
+      <div class="input-row">
+        <span class="input-prefix">R$</span>
+        <input type="number" id="dolar" value="5.0692" step="0.0001" min="0.0001">
+      </div>
+    </div>
+    <div class="input-card">
+      <label class="input-label" for="tela">Tela NY</label>
+      <div class="input-row">
+        <input type="number" id="tela" value="290.25" step="0.01" min="0">
+        <span class="input-prefix">cts/lb</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"><span>Cálculo</span></div>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">01</span>
+      <span class="step-label">Preço em dólar/saca</span>
+      <span class="step-formula" id="f1">—</span>
+      <span class="step-result" id="r1">—</span>
+    </div>
+    <div class="step">
+      <span class="step-num">02</span>
+      <span class="step-label">Conversão cts/libra</span>
+      <span class="step-formula" id="f2">—</span>
+      <span class="step-result" id="r2">—</span>
+    </div>
+    <div class="step">
+      <span class="step-num">03</span>
+      <span class="step-label">Diferencial bruto</span>
+      <span class="step-formula" id="f3">—</span>
+      <span class="step-result" id="r3">—</span>
+    </div>
+  </div>
+
+  <div class="result-card" id="result-card">
+    <div class="result-label">
+      <small>Resultado</small>
+      Bica diff
+    </div>
+    <div>
+      <div class="result-value" id="diff-val">—</div>
+      <span class="result-unit">cts / libra</span>
+    </div>
+  </div>
+
+  <p class="footer-note">
+    Fator fixo de conversão: <span>1,3228</span> · US$/saca 60kg → cts/lb
+  </p>
+  <p class="timestamp" id="ts"></p>
+
+</div>
+
+<script>
+  const FATOR = 1.3228;
+
+  function fmt(n, dec) {
+    return n.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  }
+
+  function calcular() {
+    const preco = parseFloat(document.getElementById('preco').value) || 0;
+    const dolar = parseFloat(document.getElementById('dolar').value) || 1;
+    const tela  = parseFloat(document.getElementById('tela').value)  || 0;
+
+    const r1 = preco / dolar;
+    const r2 = r1 / FATOR;
+    const r3 = r2 - tela;
+
+    document.getElementById('f1').textContent = `${fmt(preco,2)} ÷ ${fmt(dolar,4)}`;
+    document.getElementById('r1').innerHTML   = `US$ ${fmt(r1,2)} <span class="step-unit">/ saca</span>`;
+
+    document.getElementById('f2').textContent = `${fmt(r1,2)} ÷ 1,3228`;
+    document.getElementById('r2').innerHTML   = `${fmt(r2,2)} <span class="step-unit">cts/lb</span>`;
+
+    document.getElementById('f3').textContent = `${fmt(r2,2)} − ${fmt(tela,2)}`;
+    document.getElementById('r3').innerHTML   = `${fmt(r3,2)} <span class="step-unit">cts/lb</span>`;
+
+    const diffEl = document.getElementById('diff-val');
+    diffEl.textContent = fmt(r3, 2);
+    diffEl.className   = 'result-value ' + (r3 < 0 ? 'neg-val' : 'pos-val');
+  }
+
+  // Timestamp
+  function updateTs() {
+    const now = new Date();
+    document.getElementById('ts').textContent =
+      'Atualizado às ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  ['preco','dolar','tela'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => { calcular(); updateTs(); });
+  });
+
+  calcular();
+  updateTs();
+</script>
+</body>
+</html>
